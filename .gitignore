@@ -1,18 +1,14 @@
-# OSX
 .DS_Store
-
-# editor
-.vscode/
-
 node_modules/
+/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# webpack bundle
-dist/bundle.js
-dist/bundle.js.map
-
-# logs
-*.log
-
-# linters
-.eslintrc.json
-.sass-lint.yml
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
