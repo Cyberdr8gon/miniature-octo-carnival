@@ -47,6 +47,8 @@
 
 		<script src="js/ImprovedNoise.js"></script>
 		<script src="js/Detector.js"></script>
+		<script src="js/controls/FlyControls.js"></script>
+
 		<script src="js/libs/stats.min.js"></script>
 
 		<script>
@@ -64,7 +66,7 @@
 
 			var mesh;
 
-			var worldWidth = 128, worldDepth = 128,
+			var worldWidth = 256, worldDepth = 256,
 			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
 			data = generateHeight( worldWidth, worldDepth );
 
@@ -80,11 +82,13 @@
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
 				camera.position.y = getY( worldHalfWidth, worldHalfDepth ) * 100 + 100;
 
-				controls = new THREE.FirstPersonControls( camera );
+				controls = new THREE.FlyControls( camera );
 
 				controls.movementSpeed = 1000;
-				controls.lookSpeed = 0.125;
+        controls.rollSpeed = 0.5;
 				controls.lookVertical = true;
+        controls.dragTolook = false;
+        controls.autoForward = true;
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xbfd1e5 );
@@ -270,6 +274,9 @@
 
 				controls.update( clock.getDelta() );
 				renderer.render( scene, camera );
+
+        // speed up
+        controls.movementSpeed = controls.movementSpeed + 1
 
 			}
 
