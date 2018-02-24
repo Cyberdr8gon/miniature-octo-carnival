@@ -128,14 +128,14 @@ THREE.FlyControls = function ( object, domElement ) {
 
 		} else {
 
-			switch ( event.button ) {
+			//switch ( event.button ) {
 
-				case 0: this.moveState.forward = 1; break;
-				case 2: this.moveState.back = 1; break;
+			//	case 0: this.moveState.forward = 1; break;
+			//	case 2: this.moveState.back = 1; break;
 
-			}
+			//}
 
-			this.updateMovementVector();
+			//this.updateMovementVector();
 
 		}
 
@@ -171,14 +171,14 @@ THREE.FlyControls = function ( object, domElement ) {
 
 		} else {
 
-			switch ( event.button ) {
+			//switch ( event.button ) {
 
-				case 0: this.moveState.forward = 0; break;
-				case 2: this.moveState.back = 0; break;
+			//	case 0: this.moveState.forward = 0; break;
+			//	case 2: this.moveState.back = 0; break;
 
-			}
+			//}
 
-			this.updateMovementVector();
+			//this.updateMovementVector();
 
 		}
 
