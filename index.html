@@ -16,6 +16,9 @@
 				overflow: hidden;
 			}
 
+			* { padding: 0; margin: 0; }
+    		canvas { background: #eee; display: block; margin: 0 auto; }
+
 			#info {
 				position: absolute;
 				top: 0px; width: 100%;
@@ -41,6 +44,12 @@
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <a href="http://www.minecraft.net/" target="_blank" rel="noopener">minecraft</a> demo. featuring <a href="http://painterlypack.net/" target="_blank" rel="noopener">painterly pack</a><br />(left click: forward, right click: backward)</div>
 
+		<canvas id="myCanvas" width="200" height="200"></canvas>
+
+		<script >
+			var canvas = document.getElementById("myCanvas");
+			var ctx = canvas.getContext("2d");
+		</script>
 		<script src="js/three.js"></script>
 
 		<script src="js/controls/FirstPersonControls.js"></script>
