@@ -114,7 +114,7 @@ function promptRestart() {
 isPlaying = false;
 soundtrack.stop();
     document.getElementById("info").innerHTML="";
-document.getElementById("menu").innerHTML='Forever Fast <br/> <button class="large-button" onClick="startGame()">Restart Game?</button> ';
+document.getElementById("menu").innerHTML='Forever Fast <br/> <button class="large-button" onClick="window.location.reload()">Restart Game?</button> ';
 }
 
 function muteToggle() {
@@ -160,7 +160,7 @@ soundtrack.setBuffer( buffer );
 soundtrack.setLoop( true );
 soundtrack.setVolume( 0.5 );
 soundtrack.play();
-soundtrack.pause();
+//soundtrack.pause();
 });
 
     // loader
@@ -182,9 +182,9 @@ soundtrack.pause();
 
      //Merge some chunk into the global mesh at some chunk coordinate
 
-     for (let i = -2; i < 3; i++) {
-        for (let j = -2; j < 3; j++) {
-            for (let k = -2; k < 3; k++) {
+     for (let i = -7; i < 8; i++) {
+        for (let j = -7; j < 8; j++) {
+            for (let k = -7; k < 8; k++) {
                 chunkWorker.postMessage([i,j,k])
             }
         }
@@ -314,7 +314,7 @@ function mod(x, n) {
 
 function update() {
     const updateDirection = 5;
-    if (unmergedChunks.length != 0) {
+    while (unmergedChunks.length != 0) {
         let data = unmergedChunks.pop()
         let cxyz = data[0]
         let chunk = data[1]
@@ -420,6 +420,24 @@ new THREE.Vector3(
 }
 
 
+function collision_detector(grace_period) {
+  if(grace_period) return;
+  let worldx = Math.floor(player_entity.position.x/100);
+  let worldy = Math.floor(player_entity.position.y/100);
+  let worldz = Math.floor(player_entity.position.z/100);
+
+  let tcx = (worldx-mod(worldx, chunkWidth))/chunkWidth;
+  let tcy = (worldy-mod(worldy, chunkWidth))/chunkWidth;
+  let tcz = (worldz-mod(worldz, chunkWidth))/chunkWidth;
+
+
+  tempChunk = chunks[[tcx, tcy, tcz]];
+  console.log(tempChunk);
+  if(tempChunk[ridx(mod((Math.floor(player_entity.position.x)), chunkWidth), mod(Math.floor(player_entity.position.y), chunkWidth), mod(Math.floor(player_entity.position.z) , chunkWidth))]) {
+    promptRestart();
+  }
+}
+
 
 
 function render() {
@@ -436,8 +454,14 @@ if(!isPlaying) return;
     
     renderer.render( scene, camera );
 
-// speed up
-controls.movementSpeed = controls.movementSpeed + 1;
+    //console.log(clock.elapsedTime);
+    //if(clock.elapsedTime > 10) {
+      //collision_detector();
+
+    //}
+
+    // speed up
+    //controls.movementSpeed = controls.movementSpeed + 1;
 
 
 }
