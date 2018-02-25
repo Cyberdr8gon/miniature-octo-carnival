@@ -8,7 +8,7 @@
 			body {
 				color: #61443e;
 				font-family:Monospace;
-				font-size:13px;
+				font-size:30px;
 				text-align:center;
 
 				background-color: #bfd1e5;
@@ -39,7 +39,7 @@
 	<body>
 
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
-		<div id="info"><a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - <a href="http://www.minecraft.net/" target="_blank" rel="noopener">minecraft</a> demo. featuring <a href="http://painterlypack.net/" target="_blank" rel="noopener">painterly pack</a><br />(left click: forward, right click: backward)</div>
+		<div id="info">SCORE:</div>
 
 		<script src="js/three.js"></script>
 
@@ -65,6 +65,8 @@
 			var camera, controls, scene, renderer;
 
 			var mesh;
+
+			var score = 0;
 
 			var worldWidth = 256, worldDepth = 256,
 			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
@@ -93,10 +95,10 @@
 				controls = new THREE.FlyControls( camera );
 
 				controls.movementSpeed = 1000;
-        controls.rollSpeed = 0.5;
+        		controls.rollSpeed = 0.5;
 				controls.lookVertical = true;
-        controls.dragTolook = false;
-        controls.autoForward = true;
+        		controls.dragTolook = false;
+        		controls.autoForward = true;
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xbfd1e5 );
@@ -236,6 +238,7 @@
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
+				score = 0;
 			}
 
 			function onWindowResize() {
@@ -316,16 +319,24 @@
 				player_entity.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
 			}
 
+
+
+
 			function render() {
 
 				controls.update( clock.getDelta() );
 				
 				update_player_entity();
+
+				
+				//update score
+				score = score + 3;
+				document.getElementById("info").innerHTML=score;
 				
 				renderer.render( scene, camera );
 
-        // speed up
-        controls.movementSpeed = controls.movementSpeed + 1;
+        		// speed up
+        		controls.movementSpeed = controls.movementSpeed + 1;
 
 
 			}
