@@ -72,7 +72,15 @@ stoneTexture.magFilter = THREE.NearestFilter;
 stoneTexture.minFilter = THREE.LinearMipMapLinearFilter;
 
 var unmergedChunks = [];
-var chunks = [];
+var chunks = {};
+
+var playercx = 0, playercy = 0, playercz = 0;
+
+var chunkWorker = new Worker("generateChunk.js");
+    chunkWorker.addEventListener('message', function(e) {
+        unmergedChunks.push(e.data);
+        console.log("Chunk generated")
+      }, false);
 
 data = init();
 animate();
@@ -83,8 +91,8 @@ function init() {
 
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
     camera.position.x = 0;
-    camera.position.z = 0;
-    camera.position.y = 0;
+    camera.position.z = 800;
+    camera.position.y = 800;
 
     controls = new THREE.FirstPersonControls( camera );
 
@@ -102,20 +110,20 @@ function init() {
 
     //Merge some chunk into the global mesh at some chunk coordinate
 
-    var chunkWorker = new Worker("generateChunk.js");
-    chunkWorker.addEventListener('message', function(e) {
-        unmergedChunks.push(e.data);
-        console.log("Chunk generated")
-      }, false);
-
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            for (let k = 0; k < 8; k++) {
-                chunkWorker.postMessage([i,j,k])
-            }
-        }
-    }
+    // for (let i = -1; i < 2; i++) {
+    //     for (let j = -1; j < 2; j++) {
+    //         for (let k = -1; k < 2; k++) {
+    //             chunkWorker.postMessage([i,j,k])
+    //         }
+    //     }
+    // }
     
+    // chunkWorker.postMessage([1,0,0]);
+    // chunkWorker.postMessage([1,1,-1]);
+    // chunkWorker.postMessage([1,2,-2]);
+    // chunkWorker.postMessage([0,1,-2]);
+    // chunkWorker.postMessage([-1,0,-2]);
+    // chunkWorker.postMessage([-1,1,-3]);
     
     // mergeChunk(0,0,0, generateChunk(0,0,0));
     // mergeChunk(1,0,0, generateChunk(1,0,0));
@@ -195,7 +203,7 @@ function addChunkToScence(cx, cy, cz, data) {
     console.log("added chunk")
 
     var geometry = new THREE.BufferGeometry().fromGeometry( tmpGeometry );
-    geometry.computeBoundingSphere();
+    // geometry.computeBoundingSphere();
     var mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { map: stoneTexture } ) );
     scene.add( mesh );
 }
@@ -220,52 +228,98 @@ function animate() {
 
 }
 
-function render() {
-    controls.update( clock.getDelta() );
-    if (unmergedChunks.length != 0) {
-         let data = unmergedChunks.pop()
-         let cxyz = data[0]
-         let chunk = data[1]
-         addChunkToScence(cxyz[0],cxyz[1], cxyz[2], chunk);
+const pi = new THREE.Vector3(1, 0, 0);
+const pj = new THREE.Vector3(0, 1, 0);
+const pk = new THREE.Vector3(0, 0, 1);
+const ni = new THREE.Vector3(-1, 0, 0);
+const nj = new THREE.Vector3(0, -1, 0);
+const nk = new THREE.Vector3(0, 0, -1);
+const units = [pi,pj,pk,ni,nj,nk];
+
+
+function getClosestUnit(a) {
+    let minA=a.angleTo(pi), minAIndex = 0;
+    for (let i = 1; i < units.length; i++) {
+        let ca = a.angleTo(units[i]);
+        if (ca < minA) {
+            minA = ca;
+            minAIndex = i;
+        }
     }
-    renderer.render( scene, camera );
-}   
+    return units[minAIndex];
+}
 
+function getAdjacentUnits(a) {
+    if (a.equals(pi) || a.equals(ni)) {
+        return [pj, pk, nj, nk]
+    }
+    if (a.equals(pj) || a.equals(nj)) {
+        return [pi, pk, ni, nk]
+    }
+    if (a.equals(pk) || a.equals(nk)) {
+        return [pj, pi, nj, ni]
+    }
+}
 
+function mod(x, n) {
+    return ((x%n)+n)%n;
+}
 
+function update() {
+    const updateDirection = 5;
+    if (unmergedChunks.length != 0) {
+        let data = unmergedChunks.pop()
+        let cxyz = data[0]
+        let chunk = data[1]
+        addChunkToScence(cxyz[0],cxyz[1], cxyz[2], chunk);
+        chunks[cxyz] = chunk
+   }
 
+   let updated = false
+   let worldx = camera.position.x/100;
+   let tcx = (worldx-mod(worldx,chunkWidth))/chunkWidth;
+   if (playercx != tcx) {
+       updated = true
+       playercx = tcx
+   }
+   
+   let worldy = camera.position.y/100;
+   let tcy = (worldy-mod(worldy,chunkWidth))/chunkWidth;
+   if (playercy != tcy) {
+       updated = true
+       playercy = tcy
+   }
 
+   let worldz = camera.position.z/100;
+   let tcz = (worldz-mod(worldz,chunkWidth))/chunkWidth;
+   if (playercz != tcz) {
+       updated = true
+       playercz = tcz
+   }
 
-
-
-
-
-
-
-
-function noise(x, y, z) {
-    var n = tooloud.Worley.Euclidean(x, y, z);
-    return Math.floor(255 * (n[2]*n[0]));
-} 
-
-//Generate a chunk at some chunk coordinate
-const chunkArraySize = 4*chunkWidth**3;
-function generateChunk(cx, cy, cz) {
-    cx *= chunkWidth;
-    cy *= chunkWidth;
-    cz *= chunkWidth;
-    let buffer = new ArrayBuffer(chunkArraySize);
-    let float32View = new Float32Array(buffer);
-    for (let i = 0; i < chunkWidth; i++) {
-        for (let j = 0; j < chunkWidth; j++) {
-            for (let k = 0; k < chunkWidth; k++) {
-                let v = 0;
-                if (noise((i+cx)*.05,(j+cy)*.05,(k+cz)*.05) > 40) {
-                    v = 1
+   if (updated) {
+        let u = getClosestUnit(camera.getWorldDirection());
+        let playercVector = new THREE.Vector3(playercx, playercy, playercz);
+        for (let i = 0; i < updateDirection; i++) {
+            let temp = playercVector.clone().add(u/*.clone().multiplyScalar(i+1)*/);
+            temp = [temp.x,temp.y,temp.z]
+            if (!(temp in chunks)) {
+                chunkWorker.postMessage(temp)
+            }
+            let adj = getAdjacentUnits(u);
+            for (let j = 0; j < adj.length; j++) {
+                let temp = playercVector.clone().add(u).add(adj[j])
+                temp = [temp.x,temp.y,temp.z]
+                if (!(temp in chunks)) {
+                    chunkWorker.postMessage(temp)
                 }
-                float32View[ridx(i,j,k)] = v;
             }
         }
     }
-    return [[cx, cy, cz], float32View];
 }
+
+function render() {
+    controls.update( clock.getDelta() );
+    update()
+    renderer.render( scene, camera );
+}   
