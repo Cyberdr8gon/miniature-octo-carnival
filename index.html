@@ -173,50 +173,50 @@
                 data = generateNoise(width)
 
                 let r = 0
-                for (let i = 0; i < width; i++) {
-                    for (let j = 0; j < width; j++) {
-                        for (let k = 0; k < width; k++) {
-                            if (data[ridx(i,j,k, width)] == 1) {
-                                matrix.makeTranslation(i*100, j*100, k*100);  
-                                if (data[ridx(i,j,k+1, width)] == 0) {
-                                    tmpGeometry.merge( pzTmpGeometry, matrix );
-                                    r+=1;                          
-                                }
-                                if (data[ridx(i,j,k-1, width)] == 0) {
-                                    tmpGeometry.merge( nzTmpGeometry, matrix );     
-                                    r+=1;                          
-                                }
-                                if (data[ridx(i,j-1,k, width)] == 0) {
-                                    tmpGeometry.merge( nyTmpGeometry, matrix );
-                                    r+=1;                          
-                                }
-                                if (data[ridx(i,j+1,k, width)] == 0) {
-                                    tmpGeometry.merge( pyTmpGeometry, matrix );
-                                    r+=1;                          
-                                }
-                                if (data[ridx(i-1,j,k, width)] == 0) {
-                                    tmpGeometry.merge( nxTmpGeometry, matrix );
-                                    r+=1;                          
-                                }
-                                if (data[ridx(i+1,j,k, width)] == 0) {
-                                    tmpGeometry.merge( pxTmpGeometry, matrix );
-                                    r+=1;                          
-                                }
-                            }
+                // for (let i = 0; i < width; i++) {
+                //     for (let j = 0; j < width; j++) {
+                //         for (let k = 0; k < width; k++) {
+                //             if (data[ridx(i,j,k, width)] == 1) {
+                //                 matrix.makeTranslation(i*100, j*100, k*100);  
+                //                 if (data[ridx(i,j,k+1, width)] == 0) {
+                //                     tmpGeometry.merge( pzTmpGeometry, matrix );
+                //                     r+=1;                          
+                //                 }
+                //                 if (data[ridx(i,j,k-1, width)] == 0) {
+                //                     tmpGeometry.merge( nzTmpGeometry, matrix );     
+                //                     r+=1;                          
+                //                 }
+                //                 if (data[ridx(i,j-1,k, width)] == 0) {
+                //                     tmpGeometry.merge( nyTmpGeometry, matrix );
+                //                     r+=1;                          
+                //                 }
+                //                 if (data[ridx(i,j+1,k, width)] == 0) {
+                //                     tmpGeometry.merge( pyTmpGeometry, matrix );
+                //                     r+=1;                          
+                //                 }
+                //                 if (data[ridx(i-1,j,k, width)] == 0) {
+                //                     tmpGeometry.merge( nxTmpGeometry, matrix );
+                //                     r+=1;                          
+                //                 }
+                //                 if (data[ridx(i+1,j,k, width)] == 0) {
+                //                     tmpGeometry.merge( pxTmpGeometry, matrix );
+                //                     r+=1;                          
+                //                 }
+                //             }
 
-                            // if (data[ridx(i,j,k, width)]==1) {
-                            //     r+=6
-                            //     matrix.makeTranslation(i*100, j*100, k*100);
-                            //     tmpGeometry.merge( pyTmpGeometry, matrix );
-                            //     tmpGeometry.merge( nyTmpGeometry, matrix );
-                            //     tmpGeometry.merge( pxTmpGeometry, matrix );
-                            //     tmpGeometry.merge( nxTmpGeometry, matrix );
-                            //     tmpGeometry.merge( pzTmpGeometry, matrix );
-                            //     tmpGeometry.merge( nzTmpGeometry, matrix );
-                            // }
-                        }
-                    }
-                }
+                //             // if (data[ridx(i,j,k, width)]==1) {
+                //             //     r+=6
+                //             //     matrix.makeTranslation(i*100, j*100, k*100);
+                //             //     tmpGeometry.merge( pyTmpGeometry, matrix );
+                //             //     tmpGeometry.merge( nyTmpGeometry, matrix );
+                //             //     tmpGeometry.merge( pxTmpGeometry, matrix );
+                //             //     tmpGeometry.merge( nxTmpGeometry, matrix );
+                //             //     tmpGeometry.merge( pzTmpGeometry, matrix );
+                //             //     tmpGeometry.merge( nzTmpGeometry, matrix );
+                //             // }
+                //         }
+                //     }
+                // }
 
                 console.log(r)
 
@@ -228,18 +228,18 @@
 				var testMatrix = new THREE.Matrix4();
                 testMatrix.makeTranslation(200,0,100)
 
-                // tmpGeometry.merge( pyTmpGeometry, testMatrix ); //top
-                // tmpGeometry.merge( nyTmpGeometry, testMatrix ); //bottom
-                // tmpGeometry.merge( pxTmpGeometry, testMatrix );
-                // // tmpGeometry.merge( nxTmpGeometry, testMatrix );
-                // tmpGeometry.merge( pzTmpGeometry, testMatrix );
-                // tmpGeometry.merge( nzTmpGeometry, testMatrix );
+                tmpGeometry.merge( pyTmpGeometry, testMatrix ); //top
+                tmpGeometry.merge( nyTmpGeometry, testMatrix ); //bottom
+                tmpGeometry.merge( pxTmpGeometry, testMatrix );
+                tmpGeometry.merge( nxTmpGeometry, testMatrix );
+                tmpGeometry.merge( pzTmpGeometry, testMatrix );
+                tmpGeometry.merge( nzTmpGeometry, testMatrix );
 
 
 				var geometry = new THREE.BufferGeometry().fromGeometry( tmpGeometry );
 				geometry.computeBoundingSphere();
 
-				var texture = new THREE.TextureLoader().load( 'textures/minecraft/atlas.png' );
+				var texture = new THREE.TextureLoader().load( 'textures/minecraft/stone.png' );
 				texture.magFilter = THREE.NearestFilter;
 				texture.minFilter = THREE.LinearMipMapLinearFilter;
 
