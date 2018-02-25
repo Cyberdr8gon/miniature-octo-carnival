@@ -48,6 +48,7 @@
 		<script src="js/ImprovedNoise.js"></script>
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
+        <script src="./tooloud.min.js"></script>
 
 		<script>
 
@@ -65,12 +66,12 @@
 			var mesh;
 
 			var worldWidth = 128, worldDepth = 128,
-			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
-			data = generateHeight( worldWidth, worldDepth );
+			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
+			// data = generateHeight( worldWidth, worldDepth );
 
 			var clock = new THREE.Clock();
 
-			init();
+			data = init();
 			animate();
 
 			function init() {
@@ -78,7 +79,7 @@
 				container = document.getElementById( 'container' );
 
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
-				camera.position.y = getY( worldHalfWidth, worldHalfDepth ) * 100 + 100;
+				camera.position.y = 10*100;
 
 				controls = new THREE.FirstPersonControls( camera );
 
@@ -109,7 +110,13 @@
 				pyGeometry.attributes.uv.array[ 5 ] = 0.5;
 				pyGeometry.attributes.uv.array[ 7 ] = 0.5;
 				pyGeometry.rotateX( - Math.PI / 2 );
-				pyGeometry.translate( 0, 50, 0 );
+                pyGeometry.translate( 0, 50, 0 );
+                
+                var nyGeometry = new THREE.PlaneBufferGeometry( 100, 100);
+                nyGeometry.attributes.uv.array[ 5 ] = 0.5;
+				nyGeometry.attributes.uv.array[ 7 ] = 0.5;
+				nyGeometry.rotateX( + Math.PI / 2 );
+                nyGeometry.translate( 0, -50, 0 );
 
 				var pzGeometry = new THREE.PlaneBufferGeometry( 100, 100 );
 				pzGeometry.attributes.uv.array[ 1 ] = 0.5;
@@ -128,56 +135,67 @@
 				var tmpGeometry = new THREE.Geometry();
 				var pxTmpGeometry = new THREE.Geometry().fromBufferGeometry( pxGeometry );
 				var nxTmpGeometry = new THREE.Geometry().fromBufferGeometry( nxGeometry );
-				var pyTmpGeometry = new THREE.Geometry().fromBufferGeometry( pyGeometry );
+                var pyTmpGeometry = new THREE.Geometry().fromBufferGeometry( pyGeometry );
+                var nyTmpGeometry = new THREE.Geometry().fromBufferGeometry( nyGeometry );
 				var pzTmpGeometry = new THREE.Geometry().fromBufferGeometry( pzGeometry );
 				var nzTmpGeometry = new THREE.Geometry().fromBufferGeometry( nzGeometry );
 
-				for ( var z = 0; z < worldDepth; z ++ ) {
+                function noise(x, y, z) {
+                    var n = tooloud.Worley.Euclidean(x, y, z);
+                    return Math.floor(255 * (n[2]*n[0]));
+                }                
 
-					for ( var x = 0; x < worldWidth; x ++ ) {
+                function ridx(i, j, k, size) {
+                    return k+j*size+i*size**2;
+                }
 
-						var h = getY( x, z );
+                function generateNoise(width) {
+                    let buffer = new ArrayBuffer(4*width**3);
+                    let float32View = new Float32Array(buffer);
+                    for (let i = 0; i < width; i++) {
+                        for (let j = 0; j < width; j++) {
+                            for (let k = 0; k < width; k++) {
+                                float32View[ridx(i,j,k,width)] = noise(i*.05,j*.05,k*.05);
+                            }
+                        }
+                    }
+                    return float32View;
+                }
 
-						matrix.makeTranslation(
-							x * 100 - worldHalfWidth * 100,
-							h * 100,
-							z * 100 - worldHalfDepth * 100
-						);
+                let width = 64
 
-						var px = getY( x + 1, z );
-						var nx = getY( x - 1, z );
-						var pz = getY( x, z + 1 );
-						var nz = getY( x, z - 1 );
+                data = generateNoise(width)
 
-						tmpGeometry.merge( pyTmpGeometry, matrix );
+                for (let i = 0; i < width; i++) {
+                    for (let j = 0; j < width; j++) {
+                        for (let k = 0; k < width; k++) {
+                            if (data[ridx(i,j,k, width)]> 40) {
+                                matrix.makeTranslation(i*100, k*100, j*100);
+                                tmpGeometry.merge( pyTmpGeometry, matrix );
+                                tmpGeometry.merge( nyTmpGeometry, matrix );
+                                tmpGeometry.merge( pxTmpGeometry, matrix );
+                                tmpGeometry.merge( nxTmpGeometry, matrix );
+                                tmpGeometry.merge( pzTmpGeometry, matrix );
+                                tmpGeometry.merge( nzTmpGeometry, matrix );
+                            }
+                        }
+                    }
+                }
 
-						if ( ( px !== h && px !== h + 1 ) || x === 0 ) {
+                let startx = worldHalfWidth;
+                let startz = worldHalfDepth;
+                let starty= getY( worldHalfWidth, worldHalfDepth ) * 100 + 1000;
+                
+				// var testMatrix = new THREE.Matrix4();
+                // testMatrix.makeTranslation(0,starty,0)
 
-							tmpGeometry.merge( pxTmpGeometry, matrix );
+                // tmpGeometry.merge( pyTmpGeometry, testMatrix );
+                // tmpGeometry.merge( nyTmpGeometry, testMatrix );
+                // tmpGeometry.merge( pxTmpGeometry, testMatrix );
+                // tmpGeometry.merge( nxTmpGeometry, testMatrix );
+                // tmpGeometry.merge( pzTmpGeometry, testMatrix );
+                // tmpGeometry.merge( nzTmpGeometry, testMatrix );
 
-						}
-
-						if ( ( nx !== h && nx !== h + 1 ) || x === worldWidth - 1 ) {
-
-							tmpGeometry.merge( nxTmpGeometry, matrix );
-
-						}
-
-						if ( ( pz !== h && pz !== h + 1 ) || z === worldDepth - 1 ) {
-
-							tmpGeometry.merge( pzTmpGeometry, matrix );
-
-						}
-
-						if ( ( nz !== h && nz !== h + 1 ) || z === 0 ) {
-
-							tmpGeometry.merge( nzTmpGeometry, matrix );
-
-						}
-
-					}
-
-				}
 
 				var geometry = new THREE.BufferGeometry().fromGeometry( tmpGeometry );
 				geometry.computeBoundingSphere();
@@ -192,7 +210,7 @@
 				var ambientLight = new THREE.AmbientLight( 0xcccccc );
 				scene.add( ambientLight );
 
-				var directionalLight = new THREE.DirectionalLight( 0xffffff, 2 );
+				var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
 				directionalLight.position.set( 1, 1, 0.5 ).normalize();
 				scene.add( directionalLight );
 
@@ -209,7 +227,7 @@
 
 				//
 
-				window.addEventListener( 'resize', onWindowResize, false );
+                window.addEventListener( 'resize', onWindowResize, false );
 
 			}
 
@@ -271,9 +289,7 @@
 				controls.update( clock.getDelta() );
 				renderer.render( scene, camera );
 
-			}
-
+            }
 		</script>
-
 	</body>
 </html>
