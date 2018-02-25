@@ -23,10 +23,10 @@ function generateChunk(cx, cy, cz) {
     for (let i = 0; i < chunkWidth; i++) {
         for (let j = 0; j < chunkWidth; j++) {
             for (let k = 0; k < chunkWidth; k++) {
-                let v = 1;
-                // if (noise((i+cx)*.05,(j+cy)*.05,(k+cz)*.05) > 40) {
-                //     v = 1
-                // }
+                let v = 0;
+                if (noise((i+cx)*.05,(j+cy)*.05,(k+cz)*.05) > 30) {
+                    v = 1
+                }
                 float32View[ridx(i,j,k)] = v;
             }
         }

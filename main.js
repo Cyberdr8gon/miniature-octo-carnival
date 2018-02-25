@@ -110,13 +110,13 @@ function init() {
 
     //Merge some chunk into the global mesh at some chunk coordinate
 
-    // for (let i = -1; i < 2; i++) {
-    //     for (let j = -1; j < 2; j++) {
-    //         for (let k = -1; k < 2; k++) {
-    //             chunkWorker.postMessage([i,j,k])
-    //         }
-    //     }
-    // }
+    for (let i = -2; i < 3; i++) {
+        for (let j = -2; j < 3; j++) {
+            for (let k = -2; k < 3; k++) {
+                chunkWorker.postMessage([i,j,k])
+            }
+        }
+    }
     
     // chunkWorker.postMessage([1,0,0]);
     // chunkWorker.postMessage([1,1,-1]);
@@ -276,21 +276,21 @@ function update() {
    }
 
    let updated = false
-   let worldx = camera.position.x/100;
+   let worldx = Math.floor(camera.position.x/100);
    let tcx = (worldx-mod(worldx,chunkWidth))/chunkWidth;
    if (playercx != tcx) {
        updated = true
        playercx = tcx
    }
    
-   let worldy = camera.position.y/100;
+   let worldy = Math.floor(camera.position.y/100);
    let tcy = (worldy-mod(worldy,chunkWidth))/chunkWidth;
    if (playercy != tcy) {
        updated = true
        playercy = tcy
    }
 
-   let worldz = camera.position.z/100;
+   let worldz = Math.floor(camera.position.z/100);
    let tcz = (worldz-mod(worldz,chunkWidth))/chunkWidth;
    if (playercz != tcz) {
        updated = true
@@ -301,14 +301,15 @@ function update() {
         let u = getClosestUnit(camera.getWorldDirection());
         let playercVector = new THREE.Vector3(playercx, playercy, playercz);
         for (let i = 0; i < updateDirection; i++) {
-            let temp = playercVector.clone().add(u/*.clone().multiplyScalar(i+1)*/);
+            let ui = u.clone().multiplyScalar(i+1);
+            let temp = playercVector.clone().add(ui);
             temp = [temp.x,temp.y,temp.z]
             if (!(temp in chunks)) {
                 chunkWorker.postMessage(temp)
             }
             let adj = getAdjacentUnits(u);
             for (let j = 0; j < adj.length; j++) {
-                let temp = playercVector.clone().add(u).add(adj[j])
+                let temp = playercVector.clone().add(ui).add(adj[j])
                 temp = [temp.x,temp.y,temp.z]
                 if (!(temp in chunks)) {
                     chunkWorker.postMessage(temp)
