@@ -296,11 +296,15 @@
 				let camera_direction_vector = camera.getWorldDirection();
 				let camera_normal_vector = camera.up.clone();
 
-				console.log(camera_normal_vector);
-				console.log(camera.up);
+				//console.log(camera_normal_vector);
+				//console.log(camera.up);
 				camera_normal_vector.applyQuaternion(camera.quaternion);
 				//let camera_normal_vector = camera_up.applyQuaternion(camera.quaternion);
-				console.log(camera_normal_vector.dot(camera_direction_vector));
+				//console.log(camera_normal_vector.dot(camera_direction_vector));
+
+        let camera_lateral_vector = camera_normal_vector.clone();
+        camera_lateral_vector = camera_lateral_vector.cross(camera_direction_vector);
+
 				let new_location_vector = 
 						new THREE.Vector3(camera.position.x + camera_direction_vector.x * player_projection_distance - camera_normal_vector.x * player_entity_center_offset, 
 										  camera.position.y + camera_direction_vector.y * player_projection_distance - camera_normal_vector.y * player_entity_center_offset, 
