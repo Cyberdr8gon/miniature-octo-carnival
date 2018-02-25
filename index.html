@@ -66,6 +66,8 @@
 
 			var mesh;
 
+			var score = 0;
+
 			var worldWidth = 256, worldDepth = 256,
 			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
 			data = generateHeight( worldWidth, worldDepth );
@@ -316,6 +318,12 @@
 				player_entity.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
 			}
 
+			function drawScore() {
+   			 	ctx.font = "16px Arial";
+    			ctx.fillStyle = "#0095DD";
+    			ctx.fillText("Score: "+score, 8, 20);
+			}
+
 			function render() {
 
 				controls.update( clock.getDelta() );
@@ -323,6 +331,9 @@
 				update_player_entity();
 				
 				renderer.render( scene, camera );
+
+				drawScore();
+				score++;
 
         // speed up
         controls.movementSpeed = controls.movementSpeed + 1;
