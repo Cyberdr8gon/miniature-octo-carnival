@@ -72,6 +72,14 @@
 
 			var clock = new THREE.Clock();
 
+            // player variables
+			var player_entity;
+			var player_projection_distance = 5;
+			var player_scaling_scalar = 2;
+			var player_entity_center_offset = 1.5;
+
+
+
 			init();
 			animate();
 
@@ -92,6 +100,19 @@
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xbfd1e5 );
+
+				// loader
+				var loader = new THREE.ObjectLoader( );
+				loader.load(
+					'models/json/wolfen-brawl-threejs/wolfen-brawl.json',
+					function( object )
+					{
+						player_entity = object;
+						object.scale.set(player_scaling_scalar,player_scaling_scalar,player_scaling_scalar);
+						//object.position.set(camera.position.x,camera.position.y,camera.position.z);
+						scene.add( object );
+					}
+				);
 
 				// sides
 
@@ -270,13 +291,38 @@
 
 			}
 
+			function update_player_entity() {
+				// test for location of player_entity update before or after controls update
+				let camera_direction_vector = camera.getWorldDirection();
+				let camera_normal_vector = camera.up.clone();
+
+				console.log(camera_normal_vector);
+				console.log(camera.up);
+				camera_normal_vector.applyQuaternion(camera.quaternion);
+				//let camera_normal_vector = camera_up.applyQuaternion(camera.quaternion);
+				console.log(camera_normal_vector.dot(camera_direction_vector));
+				let new_location_vector = 
+						new THREE.Vector3(camera.position.x + camera_direction_vector.x * player_projection_distance - camera_normal_vector.x * player_entity_center_offset, 
+										  camera.position.y + camera_direction_vector.y * player_projection_distance - camera_normal_vector.y * player_entity_center_offset, 
+										  camera.position.z + camera_direction_vector.z * player_projection_distance - camera_normal_vector.z * player_entity_center_offset);
+
+				player_entity.position.set(new_location_vector.x, 
+										   new_location_vector.y, 
+										   new_location_vector.z);
+				player_entity.rotation.set(camera.rotation.x, camera.rotation.y, camera.rotation.z);
+			}
+
 			function render() {
 
 				controls.update( clock.getDelta() );
+				
+				update_player_entity();
+				
 				renderer.render( scene, camera );
 
         // speed up
-        controls.movementSpeed = controls.movementSpeed + 1
+        controls.movementSpeed = controls.movementSpeed + 1;
+
 
 			}
 
