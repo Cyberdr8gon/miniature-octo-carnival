@@ -54,10 +54,8 @@
 		<script>
 
 			if ( ! Detector.webgl ) {
-
 				Detector.addGetWebGLMessage();
 				document.getElementById( 'container' ).innerHTML = "";
-
 			}
 
 			var container, stats;
@@ -78,8 +76,12 @@
 			var player_entity;
 			var player_projection_distance = 5;
 			var player_scaling_scalar = 2;
-			var player_entity_center_offset = 1.5;
+			var player_entity_center_offset = -1;
+      var player_entity_vertial_sway = 3;
+      var player_entity_horizontal_sway = 9;
 
+      var camera_history_length = 15;
+      var camera_history = [];
 
 
 			init();
@@ -99,6 +101,10 @@
 				controls.lookVertical = true;
         		controls.dragTolook = false;
         		controls.autoForward = true;
+
+        for (let i = 0; i < camera_history_length; i++) {
+          camera_history[i] = camera.direction;
+        }
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xbfd1e5 );
@@ -308,10 +314,37 @@
         let camera_lateral_vector = camera_normal_vector.clone();
         camera_lateral_vector = camera_lateral_vector.cross(camera_direction_vector);
 
-				let new_location_vector = 
-						new THREE.Vector3(camera.position.x + camera_direction_vector.x * player_projection_distance - camera_normal_vector.x * player_entity_center_offset, 
-										  camera.position.y + camera_direction_vector.y * player_projection_distance - camera_normal_vector.y * player_entity_center_offset, 
-										  camera.position.z + camera_direction_vector.z * player_projection_distance - camera_normal_vector.z * player_entity_center_offset);
+        camera_history.push(camera.getWorldDirection());
+
+
+        // planar acceleration vectors
+        let normal_projecting_vector = camera_history.shift();
+        let lateral_projecting_vector = normal_projecting_vector.clone();
+
+        //console.log(normal_projecting_vector);
+
+        normal_projecting_vector.projectOnVector(camera_normal_vector);
+        lateral_projecting_vector.projectOnVector(camera_lateral_vector);
+
+        console.log(lateral_projecting_vector);
+
+				let new_location_vector =
+            new THREE.Vector3(
+              camera.position.x 
+              + camera_direction_vector.x * player_projection_distance 
+              + camera_normal_vector.x * player_entity_center_offset 
+              + normal_projecting_vector.x * player_entity_vertial_sway
+              + lateral_projecting_vector.x * player_entity_horizontal_sway, 
+						  camera.position.y 
+              + camera_direction_vector.y * player_projection_distance 
+              + camera_normal_vector.y * player_entity_center_offset 
+              + normal_projecting_vector.y * player_entity_vertial_sway
+              + lateral_projecting_vector.y * player_entity_horizontal_sway, 
+						  camera.position.z 
+              + camera_direction_vector.z * player_projection_distance 
+              + camera_normal_vector.z * player_entity_center_offset 
+              + normal_projecting_vector.z * player_entity_vertial_sway
+              + lateral_projecting_vector.z * player_entity_horizontal_sway); 
 
 				player_entity.position.set(new_location_vector.x, 
 										   new_location_vector.y, 
