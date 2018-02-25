@@ -107,7 +107,8 @@
         }
 
 				scene = new THREE.Scene();
-				scene.background = new THREE.Color( 0xbfd1e5 );
+				scene.background = new THREE.Color( 0xffffff );
+				scene.fog = new THREE.FogExp2( 0xffffff, 0.00015 );
 
 				// loader
 				var loader = new THREE.ObjectLoader( );
@@ -326,7 +327,7 @@
         normal_projecting_vector.projectOnVector(camera_normal_vector);
         lateral_projecting_vector.projectOnVector(camera_lateral_vector);
 
-        console.log(lateral_projecting_vector);
+        //console.log(lateral_projecting_vector);
 
 				let new_location_vector =
             new THREE.Vector3(
