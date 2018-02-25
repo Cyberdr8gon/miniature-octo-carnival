@@ -47,7 +47,7 @@
 			<a href="http://www.minecraft.net/" target="_blank" rel="noopener">minecraft</a> demo. featuring 
 			<a href="http://painterlypack.net/" target="_blank" rel="noopener">painterly pack</a><br/>
 		</div>
-		<div></div>
+		<div id="scoreBoard"></div>
 
 
 		<canvas id="myCanvas" width="1000" height="20"></canvas>
@@ -348,6 +348,9 @@
 				renderer.render( scene, camera );
 
 				score++;
+
+
+				document.getElementById("scoreBoard").innerHTML=score;
 
         // speed up
         controls.movementSpeed = controls.movementSpeed + 1;
