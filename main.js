@@ -67,7 +67,7 @@ var nyTmpGeometry = new THREE.Geometry().fromBufferGeometry( nyGeometry );
 var pzTmpGeometry = new THREE.Geometry().fromBufferGeometry( pzGeometry );
 var nzTmpGeometry = new THREE.Geometry().fromBufferGeometry( nzGeometry );
 
-var stoneTexture = new THREE.TextureLoader().load( 'textures/minecraft/atlas.png' );
+var stoneTexture = new THREE.TextureLoader().load( 'textures/minecraft/stone.png' );
 stoneTexture.magFilter = THREE.NearestFilter;
 stoneTexture.minFilter = THREE.LinearMipMapLinearFilter;
 
