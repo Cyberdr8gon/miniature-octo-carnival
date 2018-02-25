@@ -66,6 +66,8 @@
 
 			var score = 0;
 
+      var soundtrack;
+
 			var worldWidth = 256, worldDepth = 256,
 			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
 			data = generateHeight( worldWidth, worldDepth );
@@ -109,6 +111,20 @@
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xffffff );
 				scene.fog = new THREE.FogExp2( 0xffffff, 0.00015 );
+
+        // background music
+        var listener = new THREE.AudioListener(); 
+        camera.add( listener );
+
+        soundtrack = new THREE.Audio( listener ); 
+
+        var audioLoader = new THREE.AudioLoader();
+        audioLoader.load( 'audio/303-vs-909_by_canton.mp3', function( buffer ) {
+        	soundtrack.setBuffer( buffer );
+        	soundtrack.setLoop( true );
+        	soundtrack.setVolume( 0.5 );
+        	soundtrack.play();
+        });
 
 				// loader
 				var loader = new THREE.ObjectLoader( );
