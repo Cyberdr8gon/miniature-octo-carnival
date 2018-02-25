@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
 			body {
-				color: #61443e;
+				color: #aec6cf;
 				font-family:Monospace;
 				font-size:30px;
 				text-align:center;
@@ -22,6 +22,66 @@
 				padding: 5px;
 			}
 
+			#menu {
+				position: absolute;
+				top: 80px; width: 100%;
+				padding: 5px;
+			}
+
+			#mute-button{
+				position: absolute;
+				top: 10px; 
+        right: 10px;
+				padding: 5px;
+			}
+
+      #mute-button:hover {
+        color: #888;
+      }
+
+      .large-button {
+        text-align: center;
+        cursor: pointer;
+        font-size:24px;
+        margin: 100px 0 0 0;
+        position: relative;
+        background-color: #f39c12;
+        border: none;
+        padding: 20px;
+        width: 200px;
+        text-align: center;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+        text-decoration: none;
+        overflow: hidden;
+      }
+      
+      .large-button-three:hover{
+         background:#fff;
+         box-shadow:0px 2px 10px 5px #97B1BF;
+         color:#000;
+      }
+      
+      .large-button:after {
+          content: "";
+          background: #f1c40f;
+          display: block;
+          position: absolute;
+          padding-top: 300%;
+          padding-left: 350%;
+          margin-left: -20px !important;
+          margin-top: -120%;
+          opacity: 0;
+          transition: all 0.8s
+      }
+      
+      .large-button:active:after {
+          padding: 0;
+          margin: 0;
+          opacity: 1;
+          transition: 0s
+      }
+
 			a {
 
 				color: #a06851;
@@ -35,11 +95,18 @@
 			#oldie a { color:#fff }
 
 		</style>
+    <script defer src="/js/fontawesome-all.js"></script>
 	</head>
 	<body>
 
 		<div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 		<div id="info">SCORE:</div>
+    <div id="menu">
+      Forever Fast 
+      <br/>
+      <button onClick="startGame()" class="large-button">Start Game</button>
+    </div>
+    <div id="mute-button"><i class="fas fa-volume-off" onClick="muteToggle()"></i></div>
 
 		<script src="js/three.js"></script>
 
@@ -58,6 +125,8 @@
 				document.getElementById( 'container' ).innerHTML = "";
 			}
 
+      var isPlaying = false;
+
 			var container, stats;
 
 			var camera, controls, scene, renderer;
@@ -71,6 +140,7 @@
 			var worldWidth = 256, worldDepth = 256,
 			worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2,
 			data = generateHeight( worldWidth, worldDepth );
+			document.getElementById("info").innerHTML="";
 
 			var clock = new THREE.Clock();
 
@@ -88,6 +158,28 @@
 
 			init();
 			animate();
+
+      // UI Functions
+      function startGame() {
+        isPlaying = true;
+				document.getElementById("info").innerHTML=score;
+        document.getElementById("menu").innerHTML="";
+      }
+
+      function promptRestart() {
+        isPlaying = false;
+        soundtrack.stop();
+				document.getElementById("info").innerHTML="";
+        document.getElementById("menu").innerHTML='Forever Fast <br/> <button onClick="startGame()">Restart Game?</button> ';
+      }
+
+      function muteToggle() {
+        if(soundtrack.isPlaying) {
+          soundtrack.pause();
+        } else {
+          soundtrack.play();
+        }
+      }
 
 			function init() {
 
@@ -123,7 +215,8 @@
         	soundtrack.setBuffer( buffer );
         	soundtrack.setLoop( true );
         	soundtrack.setVolume( 0.5 );
-        	soundtrack.play();
+          soundtrack.play();
+          soundtrack.pause();
         });
 
 				// loader
@@ -373,6 +466,7 @@
 
 
 			function render() {
+        if(!isPlaying) return;
 
 				controls.update( clock.getDelta() );
 				
@@ -385,8 +479,8 @@
 				
 				renderer.render( scene, camera );
 
-        		// speed up
-        		controls.movementSpeed = controls.movementSpeed + 1;
+        // speed up
+        controls.movementSpeed = controls.movementSpeed + 1;
 
 
 			}
