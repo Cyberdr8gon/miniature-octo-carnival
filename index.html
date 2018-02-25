@@ -79,7 +79,9 @@
 				container = document.getElementById( 'container' );
 
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
-				camera.position.y = 10*100;
+                camera.position.x = 0;
+                camera.position.z = 0;
+                camera.position.y = 0;
 
 				controls = new THREE.FirstPersonControls( camera );
 
@@ -155,7 +157,11 @@
                     for (let i = 0; i < width; i++) {
                         for (let j = 0; j < width; j++) {
                             for (let k = 0; k < width; k++) {
-                                float32View[ridx(i,j,k,width)] = noise(i*.05,j*.05,k*.05);
+                                let v = 0;
+                                if (noise(i*.05,j*.05,k*.05) > 40) {
+                                    v = 1
+                                }
+                                float32View[ridx(i,j,k,width)] = v;
                             }
                         }
                     }
@@ -166,33 +172,66 @@
 
                 data = generateNoise(width)
 
+                let r = 0
                 for (let i = 0; i < width; i++) {
                     for (let j = 0; j < width; j++) {
                         for (let k = 0; k < width; k++) {
-                            if (data[ridx(i,j,k, width)]> 40) {
-                                matrix.makeTranslation(i*100, k*100, j*100);
-                                tmpGeometry.merge( pyTmpGeometry, matrix );
-                                tmpGeometry.merge( nyTmpGeometry, matrix );
-                                tmpGeometry.merge( pxTmpGeometry, matrix );
-                                tmpGeometry.merge( nxTmpGeometry, matrix );
-                                tmpGeometry.merge( pzTmpGeometry, matrix );
-                                tmpGeometry.merge( nzTmpGeometry, matrix );
+                            if (data[ridx(i,j,k, width)] == 1) {
+                                matrix.makeTranslation(i*100, j*100, k*100);  
+                                if (data[ridx(i,j,k+1, width)] == 0) {
+                                    tmpGeometry.merge( pzTmpGeometry, matrix );
+                                    r+=1;                          
+                                }
+                                if (data[ridx(i,j,k-1, width)] == 0) {
+                                    tmpGeometry.merge( nzTmpGeometry, matrix );     
+                                    r+=1;                          
+                                }
+                                if (data[ridx(i,j-1,k, width)] == 0) {
+                                    tmpGeometry.merge( nyTmpGeometry, matrix );
+                                    r+=1;                          
+                                }
+                                if (data[ridx(i,j+1,k, width)] == 0) {
+                                    tmpGeometry.merge( pyTmpGeometry, matrix );
+                                    r+=1;                          
+                                }
+                                if (data[ridx(i-1,j,k, width)] == 0) {
+                                    tmpGeometry.merge( nxTmpGeometry, matrix );
+                                    r+=1;                          
+                                }
+                                if (data[ridx(i+1,j,k, width)] == 0) {
+                                    tmpGeometry.merge( pxTmpGeometry, matrix );
+                                    r+=1;                          
+                                }
                             }
+
+                            // if (data[ridx(i,j,k, width)]==1) {
+                            //     r+=6
+                            //     matrix.makeTranslation(i*100, j*100, k*100);
+                            //     tmpGeometry.merge( pyTmpGeometry, matrix );
+                            //     tmpGeometry.merge( nyTmpGeometry, matrix );
+                            //     tmpGeometry.merge( pxTmpGeometry, matrix );
+                            //     tmpGeometry.merge( nxTmpGeometry, matrix );
+                            //     tmpGeometry.merge( pzTmpGeometry, matrix );
+                            //     tmpGeometry.merge( nzTmpGeometry, matrix );
+                            // }
                         }
                     }
                 }
+
+                console.log(r)
+
 
                 let startx = worldHalfWidth;
                 let startz = worldHalfDepth;
                 let starty= getY( worldHalfWidth, worldHalfDepth ) * 100 + 1000;
                 
-				// var testMatrix = new THREE.Matrix4();
-                // testMatrix.makeTranslation(0,starty,0)
+				var testMatrix = new THREE.Matrix4();
+                testMatrix.makeTranslation(200,0,100)
 
-                // tmpGeometry.merge( pyTmpGeometry, testMatrix );
-                // tmpGeometry.merge( nyTmpGeometry, testMatrix );
+                // tmpGeometry.merge( pyTmpGeometry, testMatrix ); //top
+                // tmpGeometry.merge( nyTmpGeometry, testMatrix ); //bottom
                 // tmpGeometry.merge( pxTmpGeometry, testMatrix );
-                // tmpGeometry.merge( nxTmpGeometry, testMatrix );
+                // // tmpGeometry.merge( nxTmpGeometry, testMatrix );
                 // tmpGeometry.merge( pzTmpGeometry, testMatrix );
                 // tmpGeometry.merge( nzTmpGeometry, testMatrix );
 
